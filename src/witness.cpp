@@ -476,6 +476,7 @@ int main() {
 
   randomgrid.pathfind();
 
+  SetTraceLogLevel(LOG_WARNING);
   InitWindow(kScreenWidth, kScreenHeight, "game");
   SetTargetFPS(60);
 

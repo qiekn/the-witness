@@ -1,6 +1,7 @@
 #include "grid.h"
 #include "object.h"
 #include "util.h"
+#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
