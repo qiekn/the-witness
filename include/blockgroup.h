@@ -2,7 +2,6 @@
 #define BLOCKGROUP_H
 
 #include <climits>
-#include <iostream>
 #include <set>
 #include <string>
 #include <vector>

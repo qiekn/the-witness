@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cfloat>
-#include <climits>
 #include <iostream>
 #include <memory>
 #include <raylib.h>
