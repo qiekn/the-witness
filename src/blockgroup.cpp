@@ -1,22 +1,24 @@
 #include "blockgroup.h"
 
-#include <set>
-#include <iostream>
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <iostream>
+#include <set>
+#include <string>
+#include <vector>
 
-using std::set;
 using std::cout;
 using std::endl;
-using std::pair;
 using std::make_pair;
-using std::vector;
-using std::string;
-using std::min;
 using std::max;
+using std::min;
+using std::pair;
+using std::set;
+using std::string;
+using std::vector;
 
-BlockGroup::BlockGroup(bool orientation, bool subtractive, vector<pair<int, int>> v, EntityColor::Color c) : Entity() {
+BlockGroup::BlockGroup(bool orientation, bool subtractive,
+                       vector<pair<int, int>> v, EntityColor::Color c)
+    : Entity() {
   oriented = orientation;
   sub = subtractive;
   pairs = set<pair<int, int>>();
@@ -31,12 +33,15 @@ BlockGroup::BlockGroup(bool orientation, bool subtractive, vector<pair<int, int>
     topright.second = max(topright.second, v[i].second);
   }
 
-  boundingbox = {topright.first - bottomleft.first + 1, topright.second - bottomleft.second + 1};
+  boundingbox = {topright.first - bottomleft.first + 1,
+                 topright.second - bottomleft.second + 1};
 
   color = c;
 }
 
-BlockGroup::BlockGroup(bool orientation, bool subtractive, vector<pair<int, int>> v) : Entity() {
+BlockGroup::BlockGroup(bool orientation, bool subtractive,
+                       vector<pair<int, int>> v)
+    : Entity() {
   oriented = orientation;
   sub = subtractive;
   pairs = set<pair<int, int>>();
@@ -51,7 +56,8 @@ BlockGroup::BlockGroup(bool orientation, bool subtractive, vector<pair<int, int>
     topright.second = max(topright.second, v[i].second);
   }
 
-  boundingbox = {topright.first - bottomleft.first + 1, topright.second - bottomleft.second + 1};
+  boundingbox = {topright.first - bottomleft.first + 1,
+                 topright.second - bottomleft.second + 1};
 
   color = EntityColor::RGB_YELLOW;
 }
@@ -67,7 +73,8 @@ void BlockGroup::updateBounds() {
     topright.second = max(topright.second, p.second);
   }
 
-  boundingbox = {topright.first - bottomleft.first + 1, topright.second - bottomleft.second + 1};
+  boundingbox = {topright.first - bottomleft.first + 1,
+                 topright.second - bottomleft.second + 1};
 }
 
 // Utility Functions
@@ -77,20 +84,22 @@ bool BlockGroup::contains(pair<int, int> p) {
 }
 
 void BlockGroup::add(pair<int, int> p) {
-  if (contains(p)) return;
+  if (contains(p))
+    return;
   pairs.insert(p);
   n++;
   return;
 }
 
 void BlockGroup::remove(pair<int, int> p) {
-  if (!contains(p)) return;
+  if (!contains(p))
+    return;
   pairs.erase(pairs.find(p));
   n--;
   return;
 }
 
-void BlockGroup::reset(vector<pair<int, int>>& p) {
+void BlockGroup::reset(vector<pair<int, int>> &p) {
   pairs.clear();
   bottomleft = {INT_MAX, INT_MAX};
   topright = {INT_MIN, INT_MIN};
@@ -102,50 +111,57 @@ void BlockGroup::reset(vector<pair<int, int>>& p) {
     topright.second = max(topright.second, x.second);
   }
 
-  boundingbox = {topright.first - bottomleft.first + 1, topright.second - bottomleft.second + 1};
+  boundingbox = {topright.first - bottomleft.first + 1,
+                 topright.second - bottomleft.second + 1};
 }
 
 BlockGroup BlockGroup::clone() {
   vector<pair<int, int>> res;
-  for (auto i : pairs) res.push_back(make_pair(i.first, i.second));
+  for (auto i : pairs)
+    res.push_back(make_pair(i.first, i.second));
   return BlockGroup(oriented, sub, res);
 }
 
 // General Functions
 
 void BlockGroup::rotate(int x) {
-  while (x < 0) x += 1000;
+  while (x < 0)
+    x += 1000;
   x %= 4;
-  if (x <= 0) return;
+  if (x <= 0)
+    return;
   rotate(x - 1);
   vector<pair<int, int>> res;
-  for (auto i : pairs) res.push_back(make_pair(-1 * i.second, i.first));
+  for (auto i : pairs)
+    res.push_back(make_pair(-1 * i.second, i.first));
 
   reset(res);
 }
 
 void BlockGroup::move(pair<int, int> p) {
   vector<pair<int, int>> res;
-  for (auto i : pairs) res.push_back(make_pair(i.first + p.first, i.second + p.second));
+  for (auto i : pairs)
+    res.push_back(make_pair(i.first + p.first, i.second + p.second));
   reset(res);
 }
 
 void BlockGroup::invmov(pair<int, int> p) {
   vector<pair<int, int>> res;
-  for (auto i : pairs) res.push_back(make_pair(i.first - p.first, i.second - p.second));
+  for (auto i : pairs)
+    res.push_back(make_pair(i.first - p.first, i.second - p.second));
   reset(res);
 }
 
-void BlockGroup::normalize() {
-  invmov(bottomleft);
-}
+void BlockGroup::normalize() { invmov(bottomleft); }
 
 void BlockGroup::removeRegion(BlockGroup x) {
-  for (pair<int, int> p : x.pairs) remove(p);
+  for (pair<int, int> p : x.pairs)
+    remove(p);
 }
 
 void BlockGroup::addRegion(BlockGroup x) {
-  for (pair<int, int> p : x.pairs) add(p);
+  for (pair<int, int> p : x.pairs)
+    add(p);
 }
 
 string BlockGroup::to_string() {
@@ -166,31 +182,40 @@ string BlockGroup::to_string() {
   return res + "]";
 }
 
-void BlockGroup::disp() {
-  cout << to_string() << endl;
-}
+void BlockGroup::disp() { cout << to_string() << endl; }
 
 // Region testing
 
-bool BlockGroup::containsbb(BlockGroup b) { // Can the bounding box contain that belonging to region b?
-  if (boundingbox.first < b.boundingbox.first) return false;
-  if (boundingbox.second < b.boundingbox.second) return false;
+bool BlockGroup::containsbb(
+    BlockGroup b) { // Can the bounding box contain that belonging to region b?
+  if (boundingbox.first < b.boundingbox.first)
+    return false;
+  if (boundingbox.second < b.boundingbox.second)
+    return false;
   return true;
 }
 
-bool BlockGroup::directoverlay(BlockGroup b) { // Does this region contain region b in terms of absolute coordinates?
-  if (n < b.n) return false;
+bool BlockGroup::directoverlay(
+    BlockGroup b) { // Does this region contain region b in terms of absolute
+                    // coordinates?
+  if (n < b.n)
+    return false;
   for (pair<int, int> p : b.pairs) {
-    if (!contains(p)) return false;
+    if (!contains(p))
+      return false;
   }
   return true;
 }
 
-vector<pair<int, int>> BlockGroup::fixedoverlay(BlockGroup b) { // Does this region contain region b? Return the offset if yes, INT_MIN if no.
+vector<pair<int, int>> BlockGroup::fixedoverlay(
+    BlockGroup b) { // Does this region contain region b? Return the offset if
+                    // yes, INT_MIN if no.
   // This only affects one rotation.
-  if (n < b.n) return vector<pair<int, int>>();
+  if (n < b.n)
+    return vector<pair<int, int>>();
   // the starting offset is the absolute difference in bounding boxes
-  // the ending offset is the width of the smaller bounding box in the larger one
+  // the ending offset is the width of the smaller bounding box in the larger
+  // one
 
   int dx = bottomleft.first - b.bottomleft.first;
   int dy = bottomleft.second - b.bottomleft.second;
@@ -210,7 +235,8 @@ vector<pair<int, int>> BlockGroup::fixedoverlay(BlockGroup b) { // Does this reg
   for (int i = 0; i <= width; i++) {
     for (int j = 0; j <= height; j++) {
       // test.disp();
-      if (directoverlay(test)) res.push_back({i, j});
+      if (directoverlay(test))
+        res.push_back({i, j});
       test.move({0, 1});
     }
 
@@ -238,10 +264,11 @@ vector<vector<pair<int, int>>> BlockGroup::overlay(BlockGroup b) {
 
 // Now for the real thing
 
-bool BlockGroup::dfsUtil(BlockGroup region, vector<BlockGroup>& v, int index) {
+bool BlockGroup::dfsUtil(BlockGroup region, vector<BlockGroup> &v, int index) {
   // cout << index << " ";
   // region.disp();
-  if ((size_t)index >= v.size()) return region.n == 0;
+  if ((size_t)index >= v.size())
+    return region.n == 0;
 
   BlockGroup group = v[index].clone();
   group.normalize();
@@ -252,14 +279,16 @@ bool BlockGroup::dfsUtil(BlockGroup region, vector<BlockGroup>& v, int index) {
     group.move(region.bottomleft);
     for (auto op : options[i]) {
       group.move(op);
-      region.removeRegion(group);;
+      region.removeRegion(group);
+      ;
       res |= dfsUtil(region, v, index + 1);
-      if (res) return true;
+      if (res)
+        return true;
       region.addRegion(group);
       group.invmov(op);
-
     }
-    if (group.oriented) break;
+    if (group.oriented)
+      break;
     group.rotate(1);
     group.normalize();
   }
@@ -270,9 +299,12 @@ bool BlockGroup::dfsUtil(BlockGroup region, vector<BlockGroup>& v, int index) {
 bool BlockGroup::solve(vector<BlockGroup> v) {
   int diff = n;
   for (auto i : v) {
-    if (i.sub) diff += i.n;
-    else diff -= i.n;
+    if (i.sub)
+      diff += i.n;
+    else
+      diff -= i.n;
   }
-  if (diff != 0) return false;
+  if (diff != 0)
+    return false;
   return dfsUtil(clone(), v, 0);
 }

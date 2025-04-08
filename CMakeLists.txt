@@ -35,7 +35,8 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(include)
 
 # targets
-add_executable(${PROJECT_NAME} ./src/witness.cpp)
+aux_source_directory(./src SRC_LIST)
+add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 # libraries
 target_link_libraries(${PROJECT_NAME} raylib)
