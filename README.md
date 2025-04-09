@@ -28,3 +28,5 @@ cmake -B build && make -j$(nproc) -C build
 cd path/to/your/project
 ls -s build/compile_commands.json ./compile_commands.json
 ```
+
+**Credit**:  WW92030-STORAGE/WW92030/NORMALEXISTING (Original Author‘s Different IDs)
