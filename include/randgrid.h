@@ -162,7 +162,7 @@ public:
     v[end.first][end.second] = std::shared_ptr<Endpoint>(new Endpoint(false));
 
     Grid grid = Grid(v);
-    grid.defaultGrid();
+    grid.DefaultGrid();
 
     return grid;
   }
@@ -616,7 +616,7 @@ public:
     }
 
     Grid grid = Grid(v);
-    grid.defaultGrid();
+    grid.DefaultGrid();
     return grid;
   }
 

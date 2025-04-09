@@ -26,7 +26,7 @@ void Solver::Path(pair<int, int> src, pair<int, int> prev) {
     // cout << "ENDPOINT " << src.first << " " << src.second << endl;
     // grid.disp();
 
-    bool check = grid_.Ver(origin_.first, origin_.second);
+    bool check = grid_.IsValid(origin_.first, origin_.second);
     // cout << (check ? "PASSED\n" : "FAILED\n");
     if (check) {
       // cout << "SOLUTION FOUND" << endl;

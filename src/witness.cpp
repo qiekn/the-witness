@@ -435,10 +435,11 @@ inline const char *onoff(bool b) { return (b ? "ON" : "OFF"); }
 inline Color onoffcol(bool b) { return (b ? GREEN : RED); }
 inline Color onoffdim(bool b) { return (b ? DARKGREEN : MAROON); }
 
-inline void doSettings(int screenWidth, int screenHeight) {
+/** @brief Draw pause menu */
+inline void DoSettings() {
   ClearBackground(BLACK);
-  double cx = screenWidth / 2.0;  // center pos_x
-  double cy = screenHeight / 2.0; // center pox_y
+  double cx = kScreenWidth / 2.0;  // center pos_x
+  double cy = kScreenHeight / 2.0; // center pox_y
 
   const int FS = 40; // fontsize
   const double SP = std::max(60.0, cy * 0.2);
@@ -473,7 +474,7 @@ inline void doSettings(int screenWidth, int screenHeight) {
       "Stars", cx, SP + 7 * BS, BL, BH, [] { toggleSettings(7); }, FS, WHITE,
       onoffcol(P_STAR), onoffdim(P_STAR), BD);
   DrawCenteredButton(
-      "RESET PROGRESS", cx, screenHeight - 60, BL, BH, [] { resetProgress(); },
+      "RESET PROGRESS", cx, kScreenHeight - 60, BL, BH, [] { resetProgress(); },
       FS, WHITE, BLUE, DARKBLUE, BD);
 }
 
@@ -494,14 +495,17 @@ int main() {
     if (!STARTED)
       DrawTitleScreen();
 
+    // get mouse input
     std::pair<double, double> mp = pdvec2(GetMousePosition());
     Vector2 md = GetMouseDelta();
 
+    // used for checking buttom press
     if (LATENCY > 0)
       LATENCY--;
     if (P_LATENCY > 0)
       P_LATENCY--;
 
+    // open game settings (or pause menu)
     if (STARTED && GetKeyPressed() == KEY_P && P_LATENCY == 0) {
       std::cout << "P PRESSED " << IN_SETTINGS << std::endl;
       IN_SETTINGS = !IN_SETTINGS;
@@ -513,28 +517,25 @@ int main() {
       SOLVED = false;
       RESET = false;
 
-      doSettings(kScreenWidth, kScreenHeight);
+      DoSettings();
       EndDrawing();
       continue;
     }
 
+    // render grid
     Render(thegrid, kScreenWidth, kScreenHeight, 0.1, false, true);
 
     bool dreamsreallycometrue = false;
 
+    // game start
     if (LOCKEDIN && (LATENCY == 0)) {
-      /*
-            std::cout << "MOUSE DELTAS ";
-            disp(pdvec2(md));
-            std::cout << std::endl;
-            */
       HideCursor();
       DisableCursor();
 
       double MAX_SPEED = 64;
 
-      md.x = clamp(md.x, -MAX_SPEED, MAX_SPEED);
-      md.y = clamp(md.y, -MAX_SPEED, MAX_SPEED);
+      md.x = Clamp(md.x, -MAX_SPEED, MAX_SPEED);
+      md.y = Clamp(md.y, -MAX_SPEED, MAX_SPEED);
 
       int blah = std::max(1.0f, std::max(std::abs(md.x), std::abs(md.y)));
       md.x /= blah;
@@ -546,8 +547,8 @@ int main() {
 
       std::vector<Vector2> things;
 
-      for (int r = 0; r < thegrid.n_; r++) {
-        for (int c = 0; c < thegrid.m_; c++) {
+      for (int r = 0; r < thegrid.m_; r++) {
+        for (int c = 0; c < thegrid.n_; c++) {
           if (!isEndingPoint(thegrid.board_[r][c]))
             continue;
           Vector2 v = endpointdisplacement(thegrid, r, c);
@@ -887,7 +888,7 @@ int main() {
         }
       }
 
-      if (thegrid.Ver(startpos.first, startpos.second)) {
+      if (thegrid.IsValid(startpos.first, startpos.second)) {
         SCORE++;
         LINE = GREEN;
         SOLVED = true;

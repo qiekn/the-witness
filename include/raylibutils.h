@@ -210,7 +210,7 @@ inline bool inRange(Vector2 p, Vector2 a, Vector2 b, double dx = 0,
 // NUMERICAL METHODS NUMERICAL METHODS NUMERICAL METHODS NUMERICAL METHODS
 
 // Clamp value between two bounds
-inline double clamp(double i, double L, double R) {
+inline double Clamp(double i, double L, double R) {
   if (i < std::min(L, R))
     return std::min(L, R);
   if (i > std::max(L, R))

@@ -1,6 +1,7 @@
 #include "grid.h"
 #include "object.h"
 #include "util.h"
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -10,30 +11,29 @@ using std::cout;
 using std::endl;
 using std::make_pair;
 using std::map;
-using std::max;
 using std::pair;
 using std::queue;
 
-Grid::Grid(vector<vector<std::shared_ptr<Entity>>>
-               &v) { // Once a grid is created it cannot be changed unless
-                     // changes are consistent across all aspects.
-  n_ = v.size();
-  m_ = 0;
+// Once a grid is created it cannot be changed unless changes are consistent
+// across all aspects.
+Grid::Grid(vector<vector<std::shared_ptr<Entity>>> &v) {
+  m_ = v.size();
+  n_ = 0;
   for (auto i : v)
-    m_ = max((int)(i.size()), m_);
-  if (n_ % 2 == 0)
-    n_++;
+    n_ = std::max((int)(i.size()), n_);
   if (m_ % 2 == 0)
     m_++;
+  if (n_ % 2 == 0)
+    n_++;
 
   board_ = vector<vector<std::shared_ptr<Entity>>>(
-      n_, vector<std::shared_ptr<Entity>>(m_));
+      m_, vector<std::shared_ptr<Entity>>(n_));
 
   starts_ = set<pair<int, int>>();
   ends_ = set<pair<int, int>>();
 
-  for (int i = 0; i < n_; i++) {
-    for (int j = 0; j < m_; j++) {
+  for (int i = 0; i < m_; i++) {
+    for (int j = 0; j < n_; j++) {
       if ((size_t)j < v[i].size())
         board_[i][j] = v[i][j];
       if (isStartingPoint(board_[i][j])) {
@@ -58,16 +58,16 @@ Grid::Grid(vector<vector<std::shared_ptr<Entity>>>
   }
 }
 
-void Grid::defaultGrid() {
-  for (int i = 0; i < n_; i++) {
-    for (int j = 0; j < m_; j++) {
+void Grid::DefaultGrid() {
+  for (int i = 0; i < m_; i++) {
+    for (int j = 0; j < n_; j++) {
       if (i % 2 == 0 || j % 2 == 0)
         (board_[i][j])->is_path_ = true;
     }
   }
 }
 
-void Grid::DrawLine(pair<int, int> a, pair<int, int> b) {
+void Grid::DrawStraight(pair<int, int> a, pair<int, int> b) {
   if (a.first == b.first) {
     if (a.second > b.second)
       swap(a, b);
@@ -85,7 +85,7 @@ void Grid::DrawPath(vector<pair<int, int>> v) {
   if (v.size() < 2)
     return;
   for (int i = 1; (size_t)i < v.size(); i++)
-    DrawLine(v[i - 1], v[i]);
+    DrawStraight(v[i - 1], v[i]);
 }
 
 Grid::Grid() {}
@@ -124,10 +124,14 @@ bool Grid::Inside(pair<int, int> p) {
   return true;
 }
 
-bool Grid::Ver(int sx, int sy) {
+bool Grid::IsValid(int sx, int sy) {
+
   // cout << "VERIFYING GRID" << endl;
-  // The algorithm works in four stages: THE FOX / THE WOLF / THE DRUDE / THE
-  // PHOENIX
+  // The algorithm works in four stages:
+  //  1. THE FOX
+  //  2. THE WOLF
+  //  3. THE DRUDE
+  //  4. THE PHOENIX
 
   // The first section denoted THE FOX begins by handling the more trivial
   // matters. Just as foxes are easily recognizable (and a common Fursona
@@ -374,23 +378,23 @@ bool Grid::Ver(int sx, int sy) {
     }
 
     /*
+    cout << "STAR FOR STAR " << ii.first << " " << ii.second << endl;
 
-            cout << "STAR FOR STAR " << ii.first << " " << ii.second << endl;
+    for (auto i : vis)
+      cout << i.first << " " << i.second << endl;
 
-            for (auto i : vis) cout << i.first << " " << i.second << endl;
+    cout << "COLORS!!!" << endl;
+    for (auto i : ding) {
+      cout << i.first << endl;
+      for (auto x : i.second)
+        cout << get_type(x) << endl;
+    }
 
-            cout << "COLORS!!!" << endl;
-            for (auto i : ding) {
-                cout << i.first << endl;
-                for (auto x : i.second) cout << get_type(x) << endl;
-            }
-
-            cout << "STAR COLORS!!!" << endl;
-            for (auto i : selectedcolors) {
-                cout << i.first << " = " << i.second << endl;
-            }
-
-            */
+    cout << "STAR COLORS!!!" << endl;
+    for (auto i : selectedcolors) {
+      cout << i.first << " = " << i.second << endl;
+    }
+    */
 
     for (auto i : collected) {
       EntityColor x = board_[i.first][i.second]->color_;
@@ -556,7 +560,7 @@ bool Grid::Ver(int sx, int sy) {
         blocks_.erase(blocks_.find(i));
       // disp();
       // cout << "VERIFYING MODIFIED..." << endl;
-      if (Ver(sx, sy)) {
+      if (IsValid(sx, sy)) {
         retval = true;
       }
       // cout << "FINISHED VERIFYING MODIFIED\n";
@@ -587,7 +591,7 @@ bool Grid::Ver(int sx, int sy) {
   return false;
 }
 
-bool Grid::Check() { return Ver(begin_.first, begin_.second); }
+bool Grid::Check() { return IsValid(begin_.first, begin_.second); }
 
 // This function serves as a basic pruning system for the solver.
 // validateRegion only checks for trivial things: blobs, triangles, dots.
