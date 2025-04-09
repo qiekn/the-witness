@@ -17,93 +17,93 @@ using std::queue;
 Grid::Grid(vector<vector<std::shared_ptr<Entity>>>
                &v) { // Once a grid is created it cannot be changed unless
                      // changes are consistent across all aspects.
-  n = v.size();
-  m = 0;
+  n_ = v.size();
+  m_ = 0;
   for (auto i : v)
-    m = max((int)(i.size()), m);
-  if (n % 2 == 0)
-    n++;
-  if (m % 2 == 0)
-    m++;
+    m_ = max((int)(i.size()), m_);
+  if (n_ % 2 == 0)
+    n_++;
+  if (m_ % 2 == 0)
+    m_++;
 
-  board = vector<vector<std::shared_ptr<Entity>>>(
-      n, vector<std::shared_ptr<Entity>>(m));
+  board_ = vector<vector<std::shared_ptr<Entity>>>(
+      n_, vector<std::shared_ptr<Entity>>(m_));
 
-  starts = set<pair<int, int>>();
-  ends = set<pair<int, int>>();
+  starts_ = set<pair<int, int>>();
+  ends_ = set<pair<int, int>>();
 
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < m; j++) {
+  for (int i = 0; i < n_; i++) {
+    for (int j = 0; j < m_; j++) {
       if ((size_t)j < v[i].size())
-        board[i][j] = v[i][j];
-      if (isStartingPoint(board[i][j])) {
-        begin = {i, j};
-        starts.insert({i, j});
+        board_[i][j] = v[i][j];
+      if (isStartingPoint(board_[i][j])) {
+        begin_ = {i, j};
+        starts_.insert({i, j});
       }
-      if (isEndingPoint(board[i][j]))
-        ends.insert({i, j});
-      if (instanceof<Dot>(board[i][j]))
-        dots.insert({i, j});
-      if (instanceof<Blob>(board[i][j]))
-        blobs.insert({i, j});
-      if (instanceof<Star>(board[i][j]))
-        stars.insert({i, j});
-      if (instanceof<Triangle>(board[i][j]))
-        triangles.insert({i, j});
-      if (instanceof<BlockGroup>(board[i][j]))
-        blocks.insert({i, j});
-      if (instanceof<Cancel>(board[i][j]))
-        cancels.insert({i, j});
+      if (isEndingPoint(board_[i][j]))
+        ends_.insert({i, j});
+      if (instanceof<Dot>(board_[i][j]))
+        dots_.insert({i, j});
+      if (instanceof<Blob>(board_[i][j]))
+        blobs_.insert({i, j});
+      if (instanceof<Star>(board_[i][j]))
+        stars_.insert({i, j});
+      if (instanceof<Triangle>(board_[i][j]))
+        triangles_.insert({i, j});
+      if (instanceof<BlockGroup>(board_[i][j]))
+        blocks_.insert({i, j});
+      if (instanceof<Cancel>(board_[i][j]))
+        cancels_.insert({i, j});
     }
   }
 }
 
 void Grid::defaultGrid() {
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < m; j++) {
+  for (int i = 0; i < n_; i++) {
+    for (int j = 0; j < m_; j++) {
       if (i % 2 == 0 || j % 2 == 0)
-        (board[i][j])->isPath = true;
+        (board_[i][j])->is_path_ = true;
     }
   }
 }
 
-void Grid::drawLine(pair<int, int> a, pair<int, int> b) {
+void Grid::DrawLine(pair<int, int> a, pair<int, int> b) {
   if (a.first == b.first) {
     if (a.second > b.second)
       swap(a, b);
     for (int i = a.second; i <= b.second; i++)
-      board[a.first][i]->isPathOccupied = true;
+      board_[a.first][i]->is_path_occupied_ = true;
   } else if (a.second == b.second) {
     if (a.first > b.first)
       swap(a, b);
     for (int i = a.first; i <= b.first; i++)
-      board[i][a.second]->isPathOccupied = true;
+      board_[i][a.second]->is_path_occupied_ = true;
   }
 }
 
-void Grid::drawPath(vector<pair<int, int>> v) {
+void Grid::DrawPath(vector<pair<int, int>> v) {
   if (v.size() < 2)
     return;
   for (int i = 1; (size_t)i < v.size(); i++)
-    drawLine(v[i - 1], v[i]);
+    DrawLine(v[i - 1], v[i]);
 }
 
 Grid::Grid() {}
 
 Grid::~Grid() {
-  for (int i = 0; (size_t)i < board.size(); i++) {
-    for (int j = 0; (size_t)j < board[i].size(); j++) {
+  for (int i = 0; (size_t)i < board_.size(); i++) {
+    for (int j = 0; (size_t)j < board_[i].size(); j++) {
       // delete board[i][j];
     }
   }
 }
 
-string Grid::to_string() {
+string Grid::ToString() {
   string s = "";
-  for (auto i : board) {
+  for (auto i : board_) {
     for (auto j : i) {
-      char open = j->isPathOccupied ? '[' : (j->isPath ? '+' : '_');
-      char close = j->isPathOccupied ? ']' : (j->isPath ? '+' : '_');
+      char open = j->is_path_occupied_ ? '[' : (j->is_path_ ? '+' : '_');
+      char close = j->is_path_occupied_ ? ']' : (j->is_path_ ? '+' : '_');
       s = s + open + get_type(j) + close + " ";
     }
     s = s + "\n";
@@ -111,20 +111,20 @@ string Grid::to_string() {
   return s.substr(0, s.length() - 1);
 }
 
-void Grid::disp() { cout << to_string() << endl; }
+void Grid::Display() { cout << ToString() << endl; }
 
 // The verification algorithm
 
-bool Grid::inside(pair<int, int> p) {
+bool Grid::Inside(pair<int, int> p) {
   if (p.first < 0 || p.second < 0)
     return false;
-  if ((size_t)(p.first) >= board.size() ||
-      (size_t)(p.second) >= board[p.first].size())
+  if ((size_t)(p.first) >= board_.size() ||
+      (size_t)(p.second) >= board_[p.first].size())
     return false;
   return true;
 }
 
-bool Grid::ver(int sx, int sy) {
+bool Grid::Ver(int sx, int sy) {
   // cout << "VERIFYING GRID" << endl;
   // The algorithm works in four stages: THE FOX / THE WOLF / THE DRUDE / THE
   // PHOENIX
@@ -140,10 +140,10 @@ bool Grid::ver(int sx, int sy) {
 
   const int dx[4] = {01, 00, -1, 00};
   const int dy[4] = {00, 01, 00, -1};
-  if (!isStartingPoint(board[sx][sy]))
+  if (!isStartingPoint(board_[sx][sy]))
     return false;
-  std::shared_ptr<Entity> o = board[sx][sy];
-  if (!o->isPathOccupied)
+  std::shared_ptr<Entity> o = board_[sx][sy];
+  if (!o->is_path_occupied_)
     return false;
 
   // cout << "BASIC CHECK COMPLETED";
@@ -160,12 +160,12 @@ bool Grid::ver(int sx, int sy) {
     vis.insert(p);
     for (int i = 0; i < 4; i++) {
       pair<int, int> next = {p.first + dx[i], p.second + dy[i]};
-      if (!inside(next))
+      if (!Inside(next))
         continue;
-      std::shared_ptr<Entity> n = board[next.first][next.second];
+      std::shared_ptr<Entity> n = board_[next.first][next.second];
       if (isEndingPoint(n))
         reachedend = true;
-      if (!n->isPath || !n->isPathOccupied)
+      if (!n->is_path_ || !n->is_path_occupied_)
         continue;
       if (vis.find(next) != vis.end())
         continue;
@@ -183,25 +183,25 @@ bool Grid::ver(int sx, int sy) {
 
   set<pair<int, int>> violations;
 
-  for (auto i : dots) {
-    std::shared_ptr<Entity> o = board[i.first][i.second];
-    if (!o->isPathOccupied)
+  for (auto i : dots_) {
+    std::shared_ptr<Entity> o = board_[i.first][i.second];
+    if (!o->is_path_occupied_)
       violations.insert(i);
   }
 
-  for (auto i : triangles) {
-    std::shared_ptr<Entity> o = board[i.first][i.second];
+  for (auto i : triangles_) {
+    std::shared_ptr<Entity> o = board_[i.first][i.second];
     if (!instanceof<Triangle>(o))
       continue;
-    int target = (std::dynamic_pointer_cast<Triangle>(o))->x;
+    int target = (std::dynamic_pointer_cast<Triangle>(o))->x_;
     int count = 0;
     for (int ii = 0; ii < 4; ii++) {
       int xp = i.first + dx[ii];
       int yp = i.second + dy[ii];
-      if (!inside({xp, yp}))
+      if (!Inside({xp, yp}))
         continue;
-      std::shared_ptr<Entity> o2 = board[xp][yp];
-      if (o2->isPath && o2->isPathOccupied)
+      std::shared_ptr<Entity> o2 = board_[xp][yp];
+      if (o2->is_path_ && o2->is_path_occupied_)
         count++;
     }
 
@@ -222,14 +222,13 @@ bool Grid::ver(int sx, int sy) {
   // blue dots are marked as violation. Cancellation symbols will also ``seek''
   // the blue dots.
 
-  map<EntityColor::Color, vector<std::shared_ptr<Entity>>>
-      ding; // List of colors
-  map<EntityColor::Color, int> selectedcolors;
+  map<EntityColor, vector<std::shared_ptr<Entity>>> ding; // List of colors
+  map<EntityColor, int> selectedcolors;
   set<pair<int, int>> collected;
 
   vis.clear();
 
-  for (auto ii : blobs) {
+  for (auto ii : blobs_) {
     if (vis.find(ii) != vis.end())
       continue;
     ding.clear();
@@ -244,29 +243,29 @@ bool Grid::ver(int sx, int sy) {
 
       // cout << now.first << " / " << now.second << endl;
 
-      std::shared_ptr<Entity> cur = board[now.first][now.second];
+      std::shared_ptr<Entity> cur = board_[now.first][now.second];
 
       if (instanceof<Blob>(cur)) {
-        if (ding.find(cur->color) == ding.end())
-          ding.insert({cur->color, vector<std::shared_ptr<Entity>>()});
-        (*(ding.find(cur->color))).second.push_back(cur);
+        if (ding.find(cur->color_) == ding.end())
+          ding.insert({cur->color_, vector<std::shared_ptr<Entity>>()});
+        (*(ding.find(cur->color_))).second.push_back(cur);
       }
 
       if (instanceof<Blob>(cur)) {
         collected.insert(now);
-        if (selectedcolors.find(cur->color) == selectedcolors.end())
-          selectedcolors.insert({cur->color, 0});
-        (*(selectedcolors.find(cur->color))).second++;
+        if (selectedcolors.find(cur->color_) == selectedcolors.end())
+          selectedcolors.insert({cur->color_, 0});
+        (*(selectedcolors.find(cur->color_))).second++;
       }
 
       for (int i = 0; i < 4; i++) {
         pair<int, int> mid = {now.first + dx[i], now.second + dy[i]};
         pair<int, int> next = {now.first + dx[i] * 2, now.second + dy[i] * 2};
-        if (!inside(mid) || !inside(next))
+        if (!Inside(mid) || !Inside(next))
           continue;
-        std::shared_ptr<Entity> between = board[mid.first][mid.second];
+        std::shared_ptr<Entity> between = board_[mid.first][mid.second];
         // std::shared_ptr<Entity> hit = board[next.first][next.second];
-        if (between->isPathOccupied)
+        if (between->is_path_occupied_)
           continue;
         if (vis.find(next) != vis.end())
           continue;
@@ -298,7 +297,7 @@ bool Grid::ver(int sx, int sy) {
     // Among all colors that have a blob, the highest one ``wins'' and the
     // others ``lose''. Ties are broken arbitrarily for now.
 
-    EntityColor::Color maxcolor = EntityColor::NIL;
+    EntityColor maxcolor = EntityColor::NIL;
     int maxfreq = -1;
     for (auto i : selectedcolors) {
       if (ding.find(i.first) == ding.end())
@@ -318,8 +317,8 @@ bool Grid::ver(int sx, int sy) {
 
     // cout << "AND THE WINNING COLOR IS " << maxcolor << endl;
     for (auto i : collected) {
-      if (board[i.first][i.second]->color != maxcolor &&
-          board[i.first][i.second]->color != EntityColor::NIL)
+      if (board_[i.first][i.second]->color_ != maxcolor &&
+          board_[i.first][i.second]->color_ != EntityColor::NIL)
         violations.insert(i);
       else if (hasmorecolors)
         violations.insert(i);
@@ -330,7 +329,7 @@ bool Grid::ver(int sx, int sy) {
   // easier.
   vis.clear();
 
-  for (auto ii : stars) {
+  for (auto ii : stars_) {
     if (vis.find(ii) != vis.end())
       continue;
     ding.clear();
@@ -345,27 +344,27 @@ bool Grid::ver(int sx, int sy) {
 
       // cout << now.first << " / " << now.second << endl;
 
-      std::shared_ptr<Entity> cur = board[now.first][now.second];
+      std::shared_ptr<Entity> cur = board_[now.first][now.second];
 
-      if (ding.find(cur->color) == ding.end())
-        ding.insert({cur->color, vector<std::shared_ptr<Entity>>()});
-      (*(ding.find(cur->color))).second.push_back(cur);
+      if (ding.find(cur->color_) == ding.end())
+        ding.insert({cur->color_, vector<std::shared_ptr<Entity>>()});
+      (*(ding.find(cur->color_))).second.push_back(cur);
 
       if (instanceof<Star>(cur)) {
         collected.insert(now);
-        if (selectedcolors.find(cur->color) == selectedcolors.end())
-          selectedcolors.insert({cur->color, 0});
-        (*(selectedcolors.find(cur->color))).second++;
+        if (selectedcolors.find(cur->color_) == selectedcolors.end())
+          selectedcolors.insert({cur->color_, 0});
+        (*(selectedcolors.find(cur->color_))).second++;
       }
 
       for (int i = 0; i < 4; i++) {
         pair<int, int> mid = {now.first + dx[i], now.second + dy[i]};
         pair<int, int> next = {now.first + dx[i] * 2, now.second + dy[i] * 2};
-        if (!inside(mid) || !inside(next))
+        if (!Inside(mid) || !Inside(next))
           continue;
-        std::shared_ptr<Entity> between = board[mid.first][mid.second];
+        std::shared_ptr<Entity> between = board_[mid.first][mid.second];
         // std::shared_ptr<Entity> hit = board[next.first][next.second];
-        if (between->isPathOccupied)
+        if (between->is_path_occupied_)
           continue;
         if (vis.find(next) != vis.end())
           continue;
@@ -394,7 +393,7 @@ bool Grid::ver(int sx, int sy) {
             */
 
     for (auto i : collected) {
-      EntityColor::Color x = board[i.first][i.second]->color;
+      EntityColor x = board_[i.first][i.second]->color_;
       if (ding.find(x) == ding.end()) {
         violations.insert(i);
         continue;
@@ -415,7 +414,7 @@ bool Grid::ver(int sx, int sy) {
 
   set<pair<int, int>> region;
 
-  for (auto ii : blocks) {
+  for (auto ii : blocks_) {
     if (vis.find(ii) != vis.end())
       continue;
     region.clear();
@@ -430,7 +429,7 @@ bool Grid::ver(int sx, int sy) {
 
       // cout << now.first << " / " << now.second << endl;
 
-      std::shared_ptr<Entity> cur = board[now.first][now.second];
+      std::shared_ptr<Entity> cur = board_[now.first][now.second];
 
       if (instanceof<BlockGroup>(cur))
         collected.insert(now);
@@ -438,11 +437,11 @@ bool Grid::ver(int sx, int sy) {
       for (int i = 0; i < 4; i++) {
         pair<int, int> mid = {now.first + dx[i], now.second + dy[i]};
         pair<int, int> next = {now.first + dx[i] * 2, now.second + dy[i] * 2};
-        if (!inside(mid) || !inside(next))
+        if (!Inside(mid) || !Inside(next))
           continue;
-        std::shared_ptr<Entity> between = board[mid.first][mid.second];
+        std::shared_ptr<Entity> between = board_[mid.first][mid.second];
         // std::shared_ptr<Entity> hit = board[next.first][next.second];
-        if (between->isPathOccupied)
+        if (between->is_path_occupied_)
           continue;
         if (vis.find(next) != vis.end())
           continue;
@@ -466,7 +465,7 @@ bool Grid::ver(int sx, int sy) {
     BlockGroup testregion = BlockGroup(1, 0, regionvec);
     vector<BlockGroup> pieces;
     for (auto i : collected) {
-      std::shared_ptr<Entity> o = board[i.first][i.second];
+      std::shared_ptr<Entity> o = board_[i.first][i.second];
       if (!instanceof<BlockGroup>(o))
         continue;
       std::shared_ptr<BlockGroup> bg = std::dynamic_pointer_cast<BlockGroup>(o);
@@ -486,7 +485,7 @@ bool Grid::ver(int sx, int sy) {
   // symbol then rechecking our current path against the new grid. If there are
   // no cancels the method simply returns what we have now.
 
-  if (cancels.size() == 0 || ignored.size() == cancels.size()) {
+  if (cancels_.size() == 0 || ignored_.size() == cancels_.size()) {
     // cout << "NET VIOLATIONS - NON-CANCELLED ENDING\n";
     // for (auto i : violations) cout << i.first << " " << i.second << endl;
 
@@ -500,8 +499,8 @@ bool Grid::ver(int sx, int sy) {
     return false; // There are cancels!!!
 
   vis.clear();
-  for (auto ii : cancels) {
-    if (ignored.find(ii) != ignored.end())
+  for (auto ii : cancels_) {
+    if (ignored_.find(ii) != ignored_.end())
       continue;
     collected.clear();
     queue<pair<int, int>> q;
@@ -514,17 +513,17 @@ bool Grid::ver(int sx, int sy) {
 
       // cout << now.first << " / " << now.second << endl;
 
-      std::shared_ptr<Entity> cur = board[now.first][now.second];
+      std::shared_ptr<Entity> cur = board_[now.first][now.second];
       if (isSymbol(cur) && !instanceof<Cancel>(cur)) {
         if (violations.find(now) != violations.end())
           collected.insert(now);
       }
       for (int i = 0; i < 4; i++) {
         pair<int, int> next = {now.first + dx[i], now.second + dy[i]};
-        if (!inside(next))
+        if (!Inside(next))
           continue;
-        std::shared_ptr<Entity> hit = board[next.first][next.second];
-        if (hit->isPathOccupied)
+        std::shared_ptr<Entity> hit = board_[next.first][next.second];
+        if (hit->is_path_occupied_)
           continue;
         if (vis.find(next) != vis.end())
           continue;
@@ -533,8 +532,8 @@ bool Grid::ver(int sx, int sy) {
       }
     }
 
-    ignored.insert(ii);
-    (std::dynamic_pointer_cast<Cancel>(board[ii.first][ii.second]))->ignored =
+    ignored_.insert(ii);
+    (std::dynamic_pointer_cast<Cancel>(board_[ii.first][ii.second]))->ignored_ =
         true;
 
     // cout << "SYMBOL LOCATIONS FOR CANCEL " << ii.first << " " << ii.second <<
@@ -543,41 +542,41 @@ bool Grid::ver(int sx, int sy) {
     bool retval = false;
     for (auto i : collected) {
       // cout << i.first << " " << i.second << endl;
-      std::shared_ptr<Entity> o = board[i.first][i.second];
-      board[i.first][i.second] = o->clear();
+      std::shared_ptr<Entity> o = board_[i.first][i.second];
+      board_[i.first][i.second] = o->Clear();
       if (instanceof<Dot>(o))
-        dots.erase(dots.find(i));
+        dots_.erase(dots_.find(i));
       else if (instanceof<Star>(o))
-        stars.erase(stars.find(i));
+        stars_.erase(stars_.find(i));
       else if (instanceof<Blob>(o))
-        blobs.erase(blobs.find(i));
+        blobs_.erase(blobs_.find(i));
       else if (instanceof<Triangle>(o))
-        triangles.erase(triangles.find(i));
+        triangles_.erase(triangles_.find(i));
       else if (instanceof<BlockGroup>(o))
-        blocks.erase(blocks.find(i));
+        blocks_.erase(blocks_.find(i));
       // disp();
       // cout << "VERIFYING MODIFIED..." << endl;
-      if (ver(sx, sy)) {
+      if (Ver(sx, sy)) {
         retval = true;
       }
       // cout << "FINISHED VERIFYING MODIFIED\n";
-      board[i.first][i.second] = o;
+      board_[i.first][i.second] = o;
       if (instanceof<Dot>(o))
-        dots.insert(i);
+        dots_.insert(i);
       else if (instanceof<Star>(o))
-        stars.insert(i);
+        stars_.insert(i);
       else if (instanceof<Blob>(o))
-        blobs.insert(i);
+        blobs_.insert(i);
       else if (instanceof<Triangle>(o))
-        triangles.insert(i);
+        triangles_.insert(i);
       else if (instanceof<BlockGroup>(o))
-        blocks.insert(i);
+        blocks_.insert(i);
       if (retval)
         break;
     }
 
-    ignored.erase(ignored.find(ii));
-    (std::dynamic_pointer_cast<Cancel>(board[ii.first][ii.second]))->ignored =
+    ignored_.erase(ignored_.find(ii));
+    (std::dynamic_pointer_cast<Cancel>(board_[ii.first][ii.second]))->ignored_ =
         false;
     // cout << "FINISHED CANCELLING...\n";
     // disp();
@@ -588,7 +587,7 @@ bool Grid::ver(int sx, int sy) {
   return false;
 }
 
-bool Grid::check() { return ver(begin.first, begin.second); }
+bool Grid::Check() { return Ver(begin_.first, begin_.second); }
 
 // This function serves as a basic pruning system for the solver.
 // validateRegion only checks for trivial things: blobs, triangles, dots.
@@ -599,7 +598,7 @@ bool Grid::check() { return ver(begin.first, begin.second); }
 
 // UPDATE - This test now tests blocks as well.
 
-bool Grid::validateRegion(int sx, int sy, vector<pair<int, int>> ban) {
+bool Grid::ValidateRegion(int sx, int sy, vector<pair<int, int>> ban) {
   set<pair<int, int>> banned;
   for (auto i : ban)
     banned.insert(i);
@@ -622,7 +621,7 @@ bool Grid::validateRegion(int sx, int sy, vector<pair<int, int>> ban) {
     q.pop();
 
     vis.insert(now);
-    std::shared_ptr<Entity> o = board[now.first][now.second];
+    std::shared_ptr<Entity> o = board_[now.first][now.second];
 
     if (instanceof<Blob>(o))
       blobs.insert(now);
@@ -637,10 +636,10 @@ bool Grid::validateRegion(int sx, int sy, vector<pair<int, int>> ban) {
 
     for (int i = 0; i < 4; i++) {
       pair<int, int> next = {now.first + dx[i], now.second + dy[i]};
-      if (!inside(next))
+      if (!Inside(next))
         continue;
-      std::shared_ptr<Entity> hit = board[next.first][next.second];
-      if (hit->isPathOccupied)
+      std::shared_ptr<Entity> hit = board_[next.first][next.second];
+      if (hit->is_path_occupied_)
         continue;
       if (banned.find(next) != banned.end())
         continue;
@@ -651,29 +650,29 @@ bool Grid::validateRegion(int sx, int sy, vector<pair<int, int>> ban) {
     }
   }
 
-  set<EntityColor::Color> colors;
+  set<EntityColor> colors;
   for (auto i : blobs)
-    colors.insert(board[i.first][i.second]->color);
+    colors.insert(board_[i.first][i.second]->color_);
   if (colors.size() > 1)
     return false;
 
   for (auto i : dots)
-    if (!board[i.first][i.second]->isPathOccupied &&
+    if (!board_[i.first][i.second]->is_path_occupied_ &&
         banned.find(i) != banned.end())
       return false;
 
   for (auto i : triangles) {
-    std::shared_ptr<Entity> o = board[i.first][i.second];
+    std::shared_ptr<Entity> o = board_[i.first][i.second];
     if (!instanceof<Triangle>(o))
       continue;
-    int target = (std::dynamic_pointer_cast<Triangle>(o))->x;
+    int target = (std::dynamic_pointer_cast<Triangle>(o))->x_;
 
     int cnt = 0;
     for (int d = 0; d < 4; d++) {
       pair<int, int> sus = {i.first + dx[d], i.second + dy[d]};
-      if (!inside(sus))
+      if (!Inside(sus))
         continue;
-      if (board[sus.first][sus.second]->isPathOccupied ||
+      if (board_[sus.first][sus.second]->is_path_occupied_ ||
           banned.find(sus) != banned.end())
         cnt++;
     }
@@ -695,7 +694,7 @@ bool Grid::validateRegion(int sx, int sy, vector<pair<int, int>> ban) {
 
   vector<BlockGroup> boop;
   for (auto i : blocks) {
-    std::shared_ptr<Entity> o = board[i.first][i.second];
+    std::shared_ptr<Entity> o = board_[i.first][i.second];
     if (!instanceof<BlockGroup>(o))
       continue;
     boop.push_back(*(std::dynamic_pointer_cast<BlockGroup>(o)));

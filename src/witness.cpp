@@ -8,18 +8,28 @@
 #include "witnessclone.h"
 
 // Global variables
+const int kScreenWidth = 800;
+const int kScreenHeight = 600;
 
-double THICKNESS = 0.02; // Half-thickness of the lines as a proportion of the
-                         // grid minimum dimension (minimum of width and height)
-double SPACING; // Spacing of the grid lines as a proportion of the grid minimum
-                // dimension
-double GAPPROP = 1.0 / 3.0; // Size of the gaps as a proportion of the line
-                            // spacing. MUST BE AT MOST 0.5
-double START_RAD =
-    2.5; // Radius of the starting points as a proportion of the thickness
-double PROTRUSION =
-    0.25; // Protrusion of the endpoints as a proportion of the line spacing
-double PRODIST = 0; // The actual protrusion distance = PROTRUSION * SPACING
+// Half-thickness of the lines as a proportion of the
+// grid minimum dimension (minimum of width and height)
+double THICKNESS = 0.02;
+
+// Spacing of the grid lines as a proportion of the grid minimum dimension
+double SPACING;
+
+// Size of the gaps as a proportion of the line spacing. MUST BE AT MOST 0.5
+double GAPPROP = 1.0 / 3.0;
+
+// Radius of the starting points as a proportion of the thickness
+double START_RAD = 2.5;
+
+// Protrusion of the endpoints as a proportion of the line spacing
+double PROTRUSION = 0.25;
+
+// The actual protrusion distance = PROTRUSION * SPACING
+double PRODIST = 0;
+
 std::pair<double, double> CE;
 std::pair<double, double> TL;
 std::pair<double, double> BR;
@@ -105,11 +115,11 @@ inline Vector2 endpointdisplacement(Grid g, int rank, int file,
                                     double prodist = PRODIST) {
   if (rank == 0)
     return {0, static_cast<float>(-prodist)};
-  else if (rank == g.n - 1)
+  else if (rank == g.n_ - 1)
     return {0, static_cast<float>(prodist)};
   else if (file == 0)
     return {static_cast<float>(-prodist), 0};
-  else if (file == g.m - 1)
+  else if (file == g.m_ - 1)
     return {static_cast<float>(prodist), 0};
   else
     return {0, 0};
@@ -166,7 +176,7 @@ inline void pickgrid() {
   }
 }
 
-void render(Grid &g, const int width, const int height, double marginprop = 0.1,
+void Render(Grid &g, const int width, const int height, double marginprop = 0.1,
             bool buffer = true, bool clear = true) {
   if (buffer)
     BeginDrawing();
@@ -178,8 +188,8 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
   // Second coordinate (X coordinate or FILE coordinate) is second index
 
   THICKNESS = n * 0.02;
-  FILES = g.m / 2;
-  RANKS = g.n / 2;
+  FILES = g.m_ / 2;
+  RANKS = g.n_ / 2;
   int nrows = std::max(RANKS, FILES);
 
   Color DOT = DARKGRAY;
@@ -231,14 +241,14 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
     }
   }
 
-  for (int y = 0; y < g.n; y++) {
-    for (int x = 0; x < g.m; x++) {
+  for (int y = 0; y < g.n_; y++) {
+    for (int x = 0; x < g.m_; x++) {
       pair<double, double> POS = {GRIDTL.first + halfspacing * x,
                                   GRIDTL.second + halfspacing * y};
       if (x % 2 != 0 && y % 2 != 0)
         continue;
-      std::shared_ptr<Entity> entity = (g.board)[y][x];
-      if (!(entity->isPath))
+      std::shared_ptr<Entity> entity = (g.board_)[y][x];
+      if (!(entity->is_path_))
         DrawRectangle(POS.first - GAPPROP * halfspacing,
                       POS.second - GAPPROP * halfspacing, GAPPROP * SPACING,
                       GAPPROP * SPACING, BG);
@@ -254,11 +264,11 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
 
   // Draw Symbols
 
-  for (int y = 0; y < g.n; y++) {
-    for (int x = 0; x < g.m; x++) {
+  for (int y = 0; y < g.n_; y++) {
+    for (int x = 0; x < g.m_; x++) {
       pair<double, double> POS = {GRIDTL.first + halfspacing * x,
                                   GRIDTL.second + halfspacing * y};
-      std::shared_ptr<Entity> e = g.board[y][x];
+      std::shared_ptr<Entity> e = g.board_[y][x];
       if (instanceof<Dot>(e))
         DrawPoly(vec2pd(POS), 6, THICKNESS * 0.8, 0, DOT);
       if (instanceof<Blob>(e)) {
@@ -268,16 +278,16 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
                           static_cast<float>(POS.second - obj_width),
                           static_cast<float>(2 * obj_width),
                           static_cast<float>(2 * obj_width)};
-        DrawRectangleRounded(rect, 0.5, 8, getColor(e->color));
+        DrawRectangleRounded(rect, 0.5, 8, getColor(e->color_));
       }
       if (instanceof<Star>(e)) {
         const double OBJ_SIZE = 00.8;
         double obj_width = OBJ_SIZE * halfspacing * GAPPROP;
-        DrawPoly(vec2pd(POS), 4, obj_width, 0, getColor(e->color));
-        DrawPoly(vec2pd(POS), 4, obj_width, 45, getColor(e->color));
+        DrawPoly(vec2pd(POS), 4, obj_width, 0, getColor(e->color_));
+        DrawPoly(vec2pd(POS), 4, obj_width, 45, getColor(e->color_));
       }
       if (instanceof<Triangle>(e)) {
-        int count = (std::dynamic_pointer_cast<Triangle>(e))->x;
+        int count = (std::dynamic_pointer_cast<Triangle>(e))->x_;
         const double OBJ_SIZE = 0.2;
         const double OBJ_SPAC = 0.2;
 
@@ -285,7 +295,7 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
 
         for (int i = 0; i < count; i++)
           DrawPoly(vec2pd({leftmost + SPACING * OBJ_SPAC * i, POS.second}), 3,
-                   OBJ_SIZE * SPACING * 0.5, -90, getColor(e->color));
+                   OBJ_SIZE * SPACING * 0.5, -90, getColor(e->color_));
       }
       if (instanceof<Cancel>(e)) {
         const double OBJ_SIZE = 0.2;
@@ -324,11 +334,11 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
           std::pair<double, double> thepos = {xp, yp};
           if (bg->oriented)
             DrawPoly(vec2pd(thepos), 4, OBJ_SIZE * SPACING * 0.5, 45,
-                     getColor(e->color));
+                     getColor(e->color_));
           else {
             thepos = rotpd(thepos, POS, ROTATION);
             DrawPoly(vec2pd(thepos), 4, OBJ_SIZE * SPACING * 0.5,
-                     45 + ROTATION * RAD2DEG, getColor(e->color));
+                     45 + ROTATION * RAD2DEG, getColor(e->color_));
           }
         }
       }
@@ -337,13 +347,13 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
 
   // Draw the solution path is there is one.
 
-  for (int y = 0; y < g.n; y++) {
-    for (int x = 0; x < g.m; x++) {
+  for (int y = 0; y < g.n_; y++) {
+    for (int x = 0; x < g.m_; x++) {
       pair<double, double> POS = {GRIDTL.first + halfspacing * x,
                                   GRIDTL.second + halfspacing * y};
-      std::shared_ptr<Entity> e = g.board[y][x];
+      std::shared_ptr<Entity> e = g.board_[y][x];
 
-      if (e->isPathOccupied) {
+      if (e->is_path_occupied_) {
         if (x % 2 == 0 && y % 2 == 0)
           DrawCircle(POS.first, POS.second, THICKNESS, LINE);
         else if (x % 2 == 0)
@@ -368,29 +378,30 @@ void render(Grid &g, const int width, const int height, double marginprop = 0.1,
     EndDrawing();
 }
 
-inline void drawTitleScreen(int screenWidth, int screenHeight) {
-  ClearBackground(BLACK);
-  double cx = screenWidth / 2.0;
-  double cy = screenHeight / 2.0;
+inline void DrawTitleScreen() {
+  ClearBackground(RAYWHITE);
+  double cx = kScreenWidth / 2.0;  // center x
+  double cy = kScreenHeight / 2.0; // center y
 
-  const int FS = 40;
-  const double SP = cy * 0.2;
+  const int FS = 20; // font size
+  const double SP = cy * 0.5;
+  auto color = LIGHTGRAY;
 
-  DrawCenteredText("Weclone to Witness(clone)", cx, SP, FS, WHITE);
-  DrawCenteredText("PRESS RMB TO BEGIN", cx, SP + FS, FS, WHITE);
+  DrawCenteredText("Weclone to Witness(clone)", cx, SP, FS, color);
+  DrawCenteredText("Press rmb to begin", cx, SP + FS, FS, color);
 
-  DrawCenteredText("LMB TO DRAW LINES/SUBMIT", cx, SP + 3 * FS, FS, WHITE);
-  DrawCenteredText("RMB TO CANCEL/CHANGE PUZZLE", cx, SP + 4 * FS, FS, WHITE);
+  DrawCenteredText("LMB to draw lines/submit", cx, SP + 3 * FS, FS, color);
+  DrawCenteredText("RMB to cancel/change puzzle", cx, SP + 4 * FS, FS, color);
   if (EnableSkip) {
     if (SkipShowsSolution)
-      DrawCenteredText("SKIP TO SOLVE FOR YOU", cx, SP + 5 * FS, FS, WHITE);
+      DrawCenteredText("Skip to solve for you", cx, SP + 5 * FS, FS, color);
     else
-      DrawCenteredText("SKIP TO MOVE TO NEXT PUZ", cx, SP + 5 * FS, FS, WHITE);
+      DrawCenteredText("Skip to move to next puz", cx, SP + 5 * FS, FS, color);
   }
   if (EnableShowSolution)
-    DrawCenteredText("? TO SHOW SOLUTION", cx, SP + 6 * FS, FS, WHITE);
+    DrawCenteredText("? To show solution", cx, SP + 6 * FS, FS, color);
 
-  DrawCenteredText("P FOR SETTINGS", cx, SP + 7 * FS, FS, WHITE);
+  DrawCenteredText("P For settings", cx, SP + 7 * FS, FS, color);
 }
 
 // Game state functions
@@ -471,9 +482,6 @@ inline void doSettings(int screenWidth, int screenHeight) {
 int main() {
   srand(time(0));
 
-  const int kScreenWidth = 800;
-  const int kScreenHeight = 600;
-
   randomgrid.pathfind();
 
   SetTraceLogLevel(LOG_WARNING);
@@ -484,7 +492,7 @@ int main() {
     BeginDrawing();
 
     if (!STARTED)
-      drawTitleScreen(kScreenWidth, kScreenHeight);
+      DrawTitleScreen();
 
     std::pair<double, double> mp = pdvec2(GetMousePosition());
     Vector2 md = GetMouseDelta();
@@ -510,7 +518,7 @@ int main() {
       continue;
     }
 
-    render(thegrid, kScreenWidth, kScreenHeight, 0.1, false, true);
+    Render(thegrid, kScreenWidth, kScreenHeight, 0.1, false, true);
 
     bool dreamsreallycometrue = false;
 
@@ -538,9 +546,9 @@ int main() {
 
       std::vector<Vector2> things;
 
-      for (int r = 0; r < thegrid.n; r++) {
-        for (int c = 0; c < thegrid.m; c++) {
-          if (!isEndingPoint(thegrid.board[r][c]))
+      for (int r = 0; r < thegrid.n_; r++) {
+        for (int c = 0; c < thegrid.m_; c++) {
+          if (!isEndingPoint(thegrid.board_[r][c]))
             continue;
           Vector2 v = endpointdisplacement(thegrid, r, c);
           Vector2 endpointpos = vec2fromindex({r, c});
@@ -569,7 +577,7 @@ int main() {
         int edgefile = -1;
 
         double mindi = DBL_MAX;
-        for (int i = 0; i < thegrid.n; i++) {
+        for (int i = 0; i < thegrid.n_; i++) {
           double dist = std::abs(cursorpos.y - rankfromindex(i));
           if (dist < mindi) {
             mindi = dist;
@@ -581,7 +589,7 @@ int main() {
             rankno = i;
         }
         mindi = DBL_MAX;
-        for (int i = 0; i < thegrid.m; i++) {
+        for (int i = 0; i < thegrid.m_; i++) {
           double dist = std::abs(cursorpos.x - filefromindex(i));
           if (dist < mindi) {
             mindi = dist;
@@ -616,7 +624,7 @@ int main() {
         bool dreamscometrue = false;
 
         if (closestrank >= 0 && closestfile >= 0 &&
-            isEndingPoint(thegrid.board[closestrank][closestfile])) {
+            isEndingPoint(thegrid.board_[closestrank][closestfile])) {
           Vector2 v = endpointdisplacement(thegrid, closestrank, closestfile);
           Vector2 endpointpos = vec2fromindex({closestrank, closestfile});
           Vector2 endpointend = {endpointpos.x + v.x, endpointpos.y + v.y};
@@ -660,9 +668,9 @@ int main() {
               badtrace = true;
           }
           // Cut test
-          for (int r = 0; r < thegrid.n; r++) {
-            for (int f = 0; f < thegrid.m; f++) {
-              if (thegrid.board[r][f]->isPath)
+          for (int r = 0; r < thegrid.n_; r++) {
+            for (int f = 0; f < thegrid.m_; f++) {
+              if (thegrid.board_[r][f]->is_path_)
                 continue;
               thevec = vec2fromindex({r, f});
 
@@ -691,9 +699,9 @@ int main() {
               badtrace = true;
           }
           // Cut test
-          for (int r = 0; r < thegrid.n; r++) {
-            for (int f = 0; f < thegrid.m; f++) {
-              if (thegrid.board[r][f]->isPath)
+          for (int r = 0; r < thegrid.n_; r++) {
+            for (int f = 0; f < thegrid.m_; f++) {
+              if (thegrid.board_[r][f]->is_path_)
                 continue;
               thevec = vec2fromindex({r, f});
               bool dirreq = (md.y > 0 && thevec.y > newcurspos.y) ||
@@ -715,17 +723,17 @@ int main() {
             newcurspos.x += md.x;
           else if (md.y > 0)
             newcurspos.y += md.y;
-        } else if (rankno == thegrid.n - 1 && fileno == 0) {
+        } else if (rankno == thegrid.n_ - 1 && fileno == 0) {
           if (std::abs(md.x) > std::abs(md.y) && md.x > 0)
             newcurspos.x += md.x;
           else if (md.y < 0)
             newcurspos.y += md.y;
-        } else if (rankno == 0 && fileno == thegrid.m - 1) {
+        } else if (rankno == 0 && fileno == thegrid.m_ - 1) {
           if (std::abs(md.x) > std::abs(md.y) && md.x < 0)
             newcurspos.x += md.x;
           else if (md.y > 0)
             newcurspos.y += md.y;
-        } else if (rankno == thegrid.n - 1 && fileno == thegrid.m - 1) {
+        } else if (rankno == thegrid.n_ - 1 && fileno == thegrid.m_ - 1) {
           if (std::abs(md.x) > std::abs(md.y) && md.x < 0)
             newcurspos.x += md.x;
           else if (md.y < 0)
@@ -739,7 +747,7 @@ int main() {
             newcurspos.y += md.y;
         }
         // Bottom side
-        else if (rankno == thegrid.n - 1 && fileno >= 0 && fileno % 2 == 0) {
+        else if (rankno == thegrid.n_ - 1 && fileno >= 0 && fileno % 2 == 0) {
           if (std::abs(md.x) > std::abs(md.y))
             newcurspos.x += md.x;
           else if (md.y < 0)
@@ -753,7 +761,7 @@ int main() {
             newcurspos.y += md.y;
         }
         // Right side
-        else if (fileno == thegrid.m - 1 && rankno >= 0 && rankno % 2 == 0) {
+        else if (fileno == thegrid.m_ - 1 && rankno >= 0 && rankno % 2 == 0) {
           if (std::abs(md.x) > std::abs(md.y) && md.x < 0)
             newcurspos.x += md.x;
           else
@@ -833,19 +841,19 @@ int main() {
       disp(mp);
       disp(pdvec2(md));
 
-      for (int i = 0; i < thegrid.n; i++) {
-        for (int j = 0; j < thegrid.m; j++)
-          thegrid.board[i][j]->isPathOccupied = false;
+      for (int i = 0; i < thegrid.n_; i++) {
+        for (int j = 0; j < thegrid.m_; j++)
+          thegrid.board_[i][j]->is_path_occupied_ = false;
       }
 
-      for (auto i : thegrid.starts) {
+      for (auto i : thegrid.starts_) {
         std::cout << "START! ";
         disp(posfromindex(i));
         std::cout << "\n";
         if (rsqpd(mp, posfromindex(i)) <=
             THICKNESS * START_RAD * THICKNESS * START_RAD) {
           startpos = {i.first, i.second};
-          thegrid.board[i.first][i.second]->isPathOccupied = true;
+          thegrid.board_[i.first][i.second]->is_path_occupied_ = true;
           cursorpos = vec2fromindex(i);
           LOCKEDIN = true;
           while (pathpos.size() > 0)
@@ -868,18 +876,18 @@ int main() {
       const double CHECK_THRESHOLD = std::min(THICKNESS, 0.1 * SPACING);
 
       for (auto i : pathpos) {
-        for (int r = 0; r < thegrid.n; r++) {
-          for (int f = 0; f < thegrid.m; f++) {
-            if (!thegrid.board[r][f]->isPath)
+        for (int r = 0; r < thegrid.n_; r++) {
+          for (int f = 0; f < thegrid.m_; f++) {
+            if (!thegrid.board_[r][f]->is_path_)
               continue;
             Vector2 v = vec2fromindex({r, f});
             if (rsqvec2(i, v) <= CHECK_THRESHOLD * CHECK_THRESHOLD)
-              thegrid.board[r][f]->isPathOccupied = true;
+              thegrid.board_[r][f]->is_path_occupied_ = true;
           }
         }
       }
 
-      if (thegrid.ver(startpos.first, startpos.second)) {
+      if (thegrid.Ver(startpos.first, startpos.second)) {
         SCORE++;
         LINE = GREEN;
         SOLVED = true;
@@ -891,9 +899,9 @@ int main() {
       LOCKEDIN = false;
       EnableCursor();
 
-      for (int i = 0; i < thegrid.n; i++) {
-        for (int j = 0; j < thegrid.m; j++)
-          thegrid.board[i][j]->isPathOccupied = false;
+      for (int i = 0; i < thegrid.n_; i++) {
+        for (int j = 0; j < thegrid.m_; j++)
+          thegrid.board_[i][j]->is_path_occupied_ = false;
       }
 
       if (SOLVED || RESET) {
@@ -920,7 +928,7 @@ int main() {
 
 
             */
-        sx.deactivate();
+        sx.Deactivate();
         pickgrid();
         SOLVED = false;
         RESET = false;
@@ -944,12 +952,12 @@ int main() {
           if (mpmp.x >= kScreenWidth - 96 && mpmp.y >= kScreenHeight - 48) {
             if (SkipShowsSolution) {
               LINE = WHITE;
-              sx.set(thegrid);
-              sx.solve();
-              sx.activate();
+              sx.Set(thegrid);
+              sx.Solve();
+              sx.Activate();
               RESET = true;
             } else {
-              sx.deactivate();
+              sx.Deactivate();
               pickgrid();
               SOLVED = false;
               RESET = false;
@@ -969,9 +977,9 @@ int main() {
             LINE = BLUE;
             LOCKEDIN = false;
             RESET = false;
-            sx.set(thegrid);
-            sx.solve();
-            sx.activate();
+            sx.Set(thegrid);
+            sx.Solve();
+            sx.Activate();
           }
         }
       }

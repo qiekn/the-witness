@@ -30,6 +30,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
+add_compile_options(-Wno-expansion-to-defined)
 
 # header files
 include_directories(include)

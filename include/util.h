@@ -19,7 +19,7 @@ inline string get_type(std::shared_ptr<Entity> o) {
   if (instanceof<BlockGroup>(o))
     return "+BLOCK";
   if (instanceof<Endpoint>(o)) {
-    if ((std::dynamic_pointer_cast<Endpoint>(o))->starting)
+    if ((std::dynamic_pointer_cast<Endpoint>(o))->starting_)
       return "START!";
     return "ENDPT!";
   }
@@ -30,10 +30,10 @@ inline string get_type(std::shared_ptr<Entity> o) {
   if (instanceof<Blob>(o))
     return "_BLOB_";
   if (instanceof<Triangle>(o)) {
-    return "TRIX_" + to_string((std::dynamic_pointer_cast<Triangle>(o))->x);
+    return "TRIX_" + to_string((std::dynamic_pointer_cast<Triangle>(o))->x_);
   }
   if (instanceof<Cancel>(o)) {
-    if (!(std::dynamic_pointer_cast<Cancel>(o))->ignored)
+    if (!(std::dynamic_pointer_cast<Cancel>(o))->ignored_)
       return "CANCEL";
     else
       return "OBJECT";
@@ -43,7 +43,7 @@ inline string get_type(std::shared_ptr<Entity> o) {
 
 inline bool isStartingPoint(std::shared_ptr<Entity> o) {
   if (instanceof<Endpoint>(o)) {
-    if ((std::dynamic_pointer_cast<Endpoint>(o))->starting)
+    if ((std::dynamic_pointer_cast<Endpoint>(o))->starting_)
       return true;
     return false;
   }
@@ -52,7 +52,7 @@ inline bool isStartingPoint(std::shared_ptr<Entity> o) {
 
 inline bool isEndingPoint(std::shared_ptr<Entity> o) {
   if (instanceof<Endpoint>(o)) {
-    if ((std::dynamic_pointer_cast<Endpoint>(o))->starting)
+    if ((std::dynamic_pointer_cast<Endpoint>(o))->starting_)
       return false;
     return true;
   }

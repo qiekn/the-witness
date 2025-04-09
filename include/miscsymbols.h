@@ -4,51 +4,51 @@
 
 class Endpoint : public Entity {
 public:
-  bool starting;
-  Endpoint(bool s) : Entity() {
-    starting = s;
-    isPath = true;
-  }
+  bool starting_;
+  Endpoint(bool s) : Entity(), starting_(s) { is_path_ = true; }
 };
 
+/**
+ * @class Dot
+ * @brief Hexagon Dots
+ *
+ */
 class Dot : public Entity {
 public:
-  Dot() : Entity() { isPath = true; }
+  Dot() : Entity() { is_path_ = true; }
 };
 
+/**
+ * @class Blob
+ * @brief Colored Squares
+ *
+ */
 class Blob : public Entity {
 public:
-  Blob() : Entity() { color = EntityColor::RGB_BLACK; }
-
-  Blob(EntityColor::Color c) : Entity() { color = c; }
+  Blob() : Entity(EntityColor::kBLACK) {}
+  Blob(EntityColor c) : Entity(c) {}
 };
 
 class Star : public Entity {
 public:
-  Star() : Entity() { color = EntityColor::RGB_WHITE; }
-
-  Star(EntityColor::Color c) : Entity() { color = c; }
+  Star() : Entity(EntityColor::kWHITE) {}
+  Star(EntityColor c) : Entity(c) {}
 };
 
 class Triangle : public Entity {
 public:
-  int x;
-  Triangle(int n) : Entity() {
-    x = n;
-    color = EntityColor::RGB_ORANGE;
-  }
-
-  Triangle(int n, EntityColor::Color c) : Entity() {
-    x = n;
-    color = c;
-  }
+  int x_;
+  Triangle(int n) : Entity(EntityColor::kORANGE), x_(n) {}
+  Triangle(int n, EntityColor c) : Entity(c), x_(n) {}
 };
 
+/**
+ * @class Cancel
+ * @brief Zen symbol (Inverse "Y" symbol)
+ *
+ */
 class Cancel : public Entity {
 public:
-  bool ignored;
-  Cancel() : Entity() {
-    color = EntityColor::NIL;
-    ignored = false;
-  }
+  bool ignored_;
+  Cancel() : Entity(), ignored_(false) {}
 };

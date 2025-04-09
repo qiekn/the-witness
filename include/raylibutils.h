@@ -289,11 +289,11 @@ inline void disp(std::pair<double, double> p) {
   std::cout << "[" << p.first << " " << p.second << "]";
 }
 
-inline Color getColor(EntityColor::Color c) {
+inline Color getColor(EntityColor color) {
   Color res;
-  res.r = ((c >> 16) % 256);
-  res.g = ((c >> 8) % 256);
-  res.b = (c % 256);
+  res.r = ((static_cast<int>(color) >> 16) % 256);
+  res.g = ((static_cast<int>(color) >> 8) % 256);
+  res.b = (static_cast<int>(color) % 256);
   res.a = 255;
   return res;
 }

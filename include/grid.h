@@ -12,20 +12,20 @@ using std::vector;
 
 class Grid {
 public:
-  int n;
-  int m;
-  vector<vector<std::shared_ptr<Entity>>> board;
-  set<pair<int, int>> starts;
-  set<pair<int, int>> ends;
-  set<pair<int, int>> dots;
-  set<pair<int, int>> triangles;
-  set<pair<int, int>> blobs;
-  set<pair<int, int>> stars;
-  set<pair<int, int>> blocks;
-  set<pair<int, int>> cancels;
-  set<pair<int, int>> ignored; // ignored cancel operations
+  int n_;
+  int m_;
+  vector<vector<std::shared_ptr<Entity>>> board_;
+  set<pair<int, int>> starts_;
+  set<pair<int, int>> ends_;
+  set<pair<int, int>> dots_;
+  set<pair<int, int>> triangles_;
+  set<pair<int, int>> blobs_;
+  set<pair<int, int>> stars_;
+  set<pair<int, int>> blocks_;
+  set<pair<int, int>> cancels_;
+  set<pair<int, int>> ignored_; // ignored cancel operations
 
-  pair<int, int> begin;
+  pair<int, int> begin_;
 
   Grid();
 
@@ -33,23 +33,24 @@ public:
 
   void defaultGrid();
 
-  void drawLine(pair<int, int> a, pair<int, int> b);
+  void DrawLine(pair<int, int> a, pair<int, int> b);
 
-  void drawPath(vector<pair<int, int>> v);
+  void DrawPath(vector<pair<int, int>> v);
 
   virtual ~Grid();
 
-  string to_string();
+  string ToString();
 
-  void disp();
+  void Display();
 
   // The verification algorithm
 
-  bool inside(pair<int, int> p);
+  bool Inside(pair<int, int> p);
 
-  bool ver(int sx, int sy);
+  /* TODO: wtf??? <2025-04-09 22:09, @qiekn> */
+  bool Ver(int sx, int sy);
 
-  bool check();
+  bool Check();
 
-  bool validateRegion(int sx, int sy, vector<pair<int, int>> ban);
+  bool ValidateRegion(int sx, int sy, vector<pair<int, int>> ban);
 };

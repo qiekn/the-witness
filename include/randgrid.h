@@ -1,8 +1,8 @@
-#ifndef RANDGRID_H
-#define RANDGRID_H
+#pragma once
 
 #include <algorithm>
 #include <ctime>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
@@ -32,7 +32,12 @@ using std::vector;
 // not really feeling like putting splitting header + implementation this time
 // ... might do that later ...
 
-class RandGrid { // RandGrid generates 4x4 (internally 9x9) puzzle grids.
+/**
+ * @class RandGrid
+ * @brief generates 4x4 (internally 9x9) puzzle panel grids
+ *
+ */
+class RandGrid {
 public:
   vector<int> dx;
   vector<int> dy;
@@ -51,7 +56,7 @@ public:
 
   bool singlepath;
 
-  vector<EntityColor::Color> colors;
+  vector<EntityColor> colors;
 
   RandGrid() {
     gen = mt19937(time(0));
@@ -65,10 +70,10 @@ public:
 
     singlepath = false;
 
-    colors = vector<EntityColor::Color>(
-        {EntityColor::RGB_RED, EntityColor::RGB_GREEN, EntityColor::RGB_BLUE,
-         EntityColor::RGB_YELLOW, EntityColor::RGB_CYAN,
-         EntityColor::RGB_MAGENTA, EntityColor::RGB_WHITE});
+    colors = vector<EntityColor>({EntityColor::kRED, EntityColor::kGREEN,
+                                  EntityColor::kBLUE, EntityColor::kYELLOW,
+                                  EntityColor::kCYAN, EntityColor::kMAGENTA,
+                                  EntityColor::kWHITE});
 
     // pathfind();
   }
@@ -84,19 +89,19 @@ public:
 
     singlepath = false;
 
-    colors = vector<EntityColor::Color>(
-        {EntityColor::RGB_RED, EntityColor::RGB_GREEN, EntityColor::RGB_BLUE,
-         EntityColor::RGB_YELLOW, EntityColor::RGB_CYAN,
-         EntityColor::RGB_MAGENTA, EntityColor::RGB_WHITE});
+    colors = vector<EntityColor>({EntityColor::kRED, EntityColor::kGREEN,
+                                  EntityColor::kBLUE, EntityColor::kYELLOW,
+                                  EntityColor::kCYAN, EntityColor::kMAGENTA,
+                                  EntityColor::kWHITE});
 
     // pathfind();
   }
 
   void resetColors() {
-    colors = vector<EntityColor::Color>(
-        {EntityColor::RGB_RED, EntityColor::RGB_GREEN, EntityColor::RGB_BLUE,
-         EntityColor::RGB_YELLOW, EntityColor::RGB_CYAN,
-         EntityColor::RGB_MAGENTA, EntityColor::RGB_WHITE});
+    colors = vector<EntityColor>({EntityColor::kRED, EntityColor::kGREEN,
+                                  EntityColor::kBLUE, EntityColor::kYELLOW,
+                                  EntityColor::kCYAN, EntityColor::kMAGENTA,
+                                  EntityColor::kWHITE});
   }
 
   void reset(pair<int, int> a, pair<int, int> b) {
@@ -176,7 +181,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -194,7 +199,7 @@ public:
     }
 
     for (auto i : cuts)
-      v[i.first][i.second]->isPath = false;
+      v[i.first][i.second]->is_path_ = false;
 
     v[start.first][start.second] =
         std::shared_ptr<Endpoint>(new Endpoint(true));
@@ -247,7 +252,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -265,7 +270,7 @@ public:
     }
 
     for (auto i : things)
-      v[i.first][i.second]->isPath = false;
+      v[i.first][i.second]->is_path_ = false;
 
     v[start.first][start.second] =
         std::shared_ptr<Endpoint>(new Endpoint(true));
@@ -325,7 +330,7 @@ public:
       v[i.first][i.second] = std::shared_ptr<Blob>(
           new Blob(((size_t)(perm[reg] % numCols) < colors.size())
                        ? colors[perm[reg] % numCols]
-                       : EntityColor::RGB_GREY));
+                       : EntityColor::kGREY));
     }
 
     // Return the grid.
@@ -345,7 +350,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -363,7 +368,7 @@ public:
     }
 
     for (auto i : things)
-      v[i.first][i.second]->isPath = false;
+      v[i.first][i.second]->is_path_ = false;
 
     v[start.first][start.second] =
         std::shared_ptr<Endpoint>(new Endpoint(true));
@@ -383,7 +388,7 @@ public:
       for (int i = 0; i < 4; i++) {
         int xp = x + dx[i];
         int yp = y + dy[i];
-        if (v[xp][yp]->isPath)
+        if (v[xp][yp]->is_path_)
           pathcount++;
       }
 
@@ -420,7 +425,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -438,7 +443,7 @@ public:
     }
 
     for (auto i : things)
-      v[i.first][i.second]->isPath = false;
+      v[i.first][i.second]->is_path_ = false;
 
     v[start.first][start.second] =
         std::shared_ptr<Endpoint>(new Endpoint(true));
@@ -490,7 +495,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -644,7 +649,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -675,7 +680,7 @@ public:
     }
 
     for (auto i : things)
-      v[i.first][i.second]->isPath = false;
+      v[i.first][i.second]->is_path_ = false;
     things.clear();
 
     int mu = 0;
@@ -758,7 +763,7 @@ public:
       bool theDecidingFactor = randint(4) != 0; // Fixed orientation?
       std::shared_ptr<BlockGroup> nbg = std::shared_ptr<BlockGroup>(
           new BlockGroup(theDecidingFactor, 0, subregions[i]));
-      nbg->color = colors[0];
+      nbg->color_ = colors[0];
       if (!theDecidingFactor)
         nbg->rotate(randint(4));
       nbg->normalize();
@@ -842,7 +847,7 @@ public:
       for (int j = 0; j < 9; j++) {
         v[i][j] = std::shared_ptr<Entity>(new Entity());
         if (i % 2 == 0 || j % 2 == 0)
-          v[i][j]->isPath = true;
+          v[i][j]->is_path_ = true;
       }
     }
 
@@ -860,7 +865,7 @@ public:
     }
 
     for (auto i : cuts)
-      v[i.first][i.second]->isPath = false;
+      v[i.first][i.second]->is_path_ = false;
 
     set<pair<int, int>> things;
     vector<pair<int, int>> gridpoints;
@@ -1060,5 +1065,3 @@ public:
     }
   }
 };
-
-#endif

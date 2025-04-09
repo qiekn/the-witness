@@ -17,7 +17,7 @@ using std::string;
 using std::vector;
 
 BlockGroup::BlockGroup(bool orientation, bool subtractive,
-                       vector<pair<int, int>> v, EntityColor::Color c)
+                       vector<pair<int, int>> v, EntityColor color)
     : Entity() {
   oriented = orientation;
   sub = subtractive;
@@ -36,7 +36,7 @@ BlockGroup::BlockGroup(bool orientation, bool subtractive,
   boundingbox = {topright.first - bottomleft.first + 1,
                  topright.second - bottomleft.second + 1};
 
-  color = c;
+  color_ = color;
 }
 
 BlockGroup::BlockGroup(bool orientation, bool subtractive,
@@ -59,7 +59,7 @@ BlockGroup::BlockGroup(bool orientation, bool subtractive,
   boundingbox = {topright.first - bottomleft.first + 1,
                  topright.second - bottomleft.second + 1};
 
-  color = EntityColor::RGB_YELLOW;
+  color_ = EntityColor::kYELLOW;
 }
 
 void BlockGroup::updateBounds() {

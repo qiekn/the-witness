@@ -1,5 +1,4 @@
-#ifndef BLOCKGROUP_H
-#define BLOCKGROUP_H
+#pragma once
 
 #include <climits>
 #include <set>
@@ -27,7 +26,7 @@ public:
   const pair<int, int> NIL = {INT_MIN, INT_MIN};
 
   BlockGroup(bool orientation, bool subtractive, vector<pair<int, int>> v,
-             EntityColor::Color c);
+             EntityColor c);
 
   BlockGroup(bool orientation, bool subtractive, vector<pair<int, int>> v);
 
@@ -79,5 +78,3 @@ public:
 
   bool solve(vector<BlockGroup> v);
 };
-
-#endif

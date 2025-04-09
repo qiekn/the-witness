@@ -15,31 +15,32 @@ using std::vector;
 
 class Solver {
 public:
-  int callstopath;
-  const int dx[4] = {01, 00, -1, 00};
-  const int dy[4] = {00, 01, 00, -1};
-  vector<pair<int, int>> solution;
-  std::map<pair<int, int>, pair<int, int>> vis;
+  const int dx[4] = {1, 0, -1, 0};
+  const int dy[4] = {0, 1, 0, -1};
 
-  pair<int, int> origin;
+  int callstopath_;
+  vector<pair<int, int>> solution_;
+  std::map<pair<int, int>, pair<int, int>> vis_;
 
-  Grid grid;
+  pair<int, int> origin_;
+
+  Grid grid_;
 
   Solver();
 
   Solver(Grid &g);
 
-  void set(Grid &g);
+  void Set(Grid &g);
 
-  void path(pair<int, int> src, pair<int, int> prev);
+  void Path(pair<int, int> src, pair<int, int> prev);
 
-  vector<pair<int, int>> solve();
+  vector<pair<int, int>> Solve();
 
-  string to_string();
+  string ToString();
 
-  void disp();
+  void Display();
 
-  void activate();
+  void Activate();
 
-  void deactivate();
+  void Deactivate();
 };

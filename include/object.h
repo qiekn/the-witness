@@ -3,51 +3,45 @@
 #include <climits>
 #include <memory>
 
-namespace EntityColor {
-
-enum Color { // Color is an enum to prevent exploiting loopholes (e.g. 2 similar
-             // colors considered different)
+enum class EntityColor {
   NIL = INT_MAX, // Empty color
 
-  RGB_RED = 0xFF0000,
-  RGB_GREEN = 0x00FF00,
-  RGB_BLUE = 0x0000FF,
-  RGB_YELLOW = 0xFFFF00,
-  RGB_CYAN = 0x00FFFF,
-  RGB_MAGENTA = 0xFF00FF,
-  RGB_BLACK = 0,
-  RGB_WHITE = 0xFFFFFF,
+  kRED = 0xFF0000,
+  kGREEN = 0x00FF00,
+  kBLUE = 0x0000FF,
+  kYELLOW = 0xFFFF00,
+  kCYAN = 0x00FFFF,
+  kMAGENTA = 0xFF00FF,
+  kBLACK = 0,
+  kWHITE = 0xFFFFFF,
 
-  RGB_ORANGE = 0xFF8000,
-  RGB_GREY = 0x808080,
-  RGB_DARK = 0x404040,
-  RGB_LIGHT = 0x0C0C0C,
+  kORANGE = 0xFF8000,
+  kGREY = 0x808080,
+  kDARK = 0x404040,
+  kLIGHT = 0x0C0C0C,
 
   // Furries!
-
-  SP2 = 0xCEB7FF,
-  SP1 = 0x8AD8FF
-};
-
+  // 2025-04-09 21:52 ? What-the-fuck?
+  kSP2 = 0xCEB7FF,
+  kSP1 = 0x8AD8FF
 };
 
 class Entity {
 public:
-  EntityColor::Color color;
-  bool isPath;         // Is Pathable (false if cut or is symbol cell)
-  bool isPathOccupied; // Is there a path here
+  EntityColor color_;
+  bool is_path_;          // Is Pathable (false if cut or is symbol cell)
+  bool is_path_occupied_; // Is there a path here
 
-  Entity() {
-    isPath = false;
-    isPathOccupied = false;
-    color = EntityColor::NIL;
-  }
+  Entity()
+      : is_path_(false), is_path_occupied_(false), color_(EntityColor::NIL) {}
+  Entity(EntityColor c)
+      : is_path_(false), is_path_occupied_(false), color_(c) {}
 
-  std::shared_ptr<Entity> clear() {
-    std::shared_ptr<Entity> res = std::shared_ptr<Entity>(new Entity());
-    res->isPath = isPath;
-    res->isPathOccupied = isPathOccupied;
-    res->color = EntityColor::NIL;
+  std::shared_ptr<Entity> Clear() {
+    auto res = std::make_shared<Entity>();
+    res->is_path_ = is_path_;
+    res->is_path_occupied_ = is_path_occupied_;
+    res->color_ = EntityColor::NIL;
     return res;
   }
 
